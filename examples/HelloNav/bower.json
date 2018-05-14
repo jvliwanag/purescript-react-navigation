@@ -1,0 +1,18 @@
+{
+  "name": "hellonav",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "dependencies": {
+    "purescript-prelude": "^3.3.0",
+    "purescript-console": "^3.0.0",
+    "purescript-reactnative": "doolse/purescript-reactnative#2caac4f",
+    "purescript-react-navigation": "../.."
+  },
+  "devDependencies": {
+    "purescript-psci-support": "^3.0.0"
+  }
+}
