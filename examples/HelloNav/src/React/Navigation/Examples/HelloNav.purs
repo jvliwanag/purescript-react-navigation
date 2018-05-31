@@ -4,7 +4,7 @@ import Prelude
 
 import Control.Monad.Eff.Uncurried (mkEffFn1)
 import React (ReactClass, ReactElement, createClass, createClassStateless, spec)
-import React.Navigation (class Navigable, NavProp, Navigation, ReactNavClass, Route, RouteConfig(..), createStackNavigator, getNavParams, mkRoutes, navigate)
+import React.Navigation (class Navigable, Navigation, ReactNavClass, Route, RouteConfig(..), createStackNavigator, getNavParams, mkRoutes, navigate)
 import ReactNative.Components.Button (button)
 import ReactNative.Components.Text (text_)
 import ReactNative.Components.View (view)
