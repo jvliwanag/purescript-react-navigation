@@ -17,7 +17,6 @@ module React.Navigation ( Route(..)
                         , class RoutesBuilder
                         , class RoutesBuilderRowList
                         , class Navigable
-                        , class NavigableRowList
                         , class RouteMatcher
                         , class RouteMatcherRowList
                         ) where
@@ -80,11 +79,7 @@ mkRoutes :: forall rts. RoutesBuilder rts => rts
 mkRoutes = unsafeCoerce {}
 
 class Navigable (name :: Symbol) param rs | name param -> rs
-instance navigable :: (RowToList r rs, NavigableRowList name param rs) => Navigable name param (Record r)
-
-class NavigableRowList (name :: Symbol) param (rs :: RowList)
-instance navigableH :: NavigableRowList name param (Cons n (Route name param) t)
-instance navigableT :: (NavigableRowList name param t) => NavigableRowList name param (Cons n p t)
+instance navigable :: (IsSymbol name, RowCons name (Route name param) trash r) => Navigable name param (Record r)
 
 navigate :: forall rts p name params eff. IsSymbol name => Navigable name params rts => Navigation rts p -> Route name params -> params -> Eff eff Unit
 navigate nav r params = unsafeNavigate nav (routeName r) params
