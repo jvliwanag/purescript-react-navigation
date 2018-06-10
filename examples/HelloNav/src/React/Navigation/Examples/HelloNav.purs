@@ -2,8 +2,8 @@ module React.Navigation.Examples.HelloNav where
 
 import Prelude
 
-import Control.Monad.Eff.Uncurried (mkEffFn1)
-import React (ReactClass, ReactElement, createClass, createClassStateless, spec)
+import Effect.Uncurried (mkEffectFn1)
+import React (ReactClass, ReactElement, pureComponent, statelessComponent)
 import React.Navigation (class Navigable, Navigation, ReactNavClass, Route, RouteConfig(..), createStackNavigator, getNavParams, mkRoutes, navigate)
 import ReactNative.Components.Button (button)
 import ReactNative.Components.Text (text_)
@@ -48,19 +48,19 @@ app = createStackNavigator routes $
 -- It is important to define the routes this route will belong to
 -- since the type of the routes determine which routes can be navigated to.
 home :: ReactNavClass HelloRoutes Unit
-home = createClassStateless $ \p ->
+home = statelessComponent $ \p ->
   view sheet.container $
-  [ button "Greet Someone" $ mkEffFn1 $ const $
+  [ button "Greet Someone" $ mkEffectFn1 $ const $
     -- In order to navigate, get the navigation from props, and use the
     -- route defined in step 1. Take note that the routes navigable from
     -- the current route is limited to HelloRoutes.
     navigate p.navigation routes.greetPerson unit
-  , button "Greet World" $ mkEffFn1 $ const $
+  , button "Greet World" $ mkEffectFn1 $ const $
     navigate p.navigation routes.greetName "World"
   ]
 
 greetPerson :: ReactNavClass HelloRoutes Unit
-greetPerson = createClassStateless $ \p ->
+greetPerson = statelessComponent $ \p ->
   view sheet.container $
   [ mkGreetBtn p.navigation "Alice"
   , mkGreetBtn p.navigation "Bob"
@@ -75,16 +75,17 @@ greetPerson = createClassStateless $ \p ->
                   -> String
                   -> ReactElement
     mkGreetBtn nav p =
-      button ("Greet" <> p) $ mkEffFn1 $ const $
+      button ("Greet" <> p) $ mkEffectFn1 $ const $
       navigate nav routes.greetName p
 
 greetName :: ReactNavClass HelloRoutes String
-greetName = createClass $ spec unit render
-  where
-    render rt = do
-      param <- getNavParams rt
-      pure $ view sheet.container $ [ text_ $ "Hello " <> param
-                                    ]
+greetName = pureComponent "greetName" $ \rt ->
+  pure { state: {}
+       , render: do
+            param <- getNavParams rt
+            pure $ view sheet.container $ [ text_ $ "Hello " <> param
+                                          ]
+       }
 
 sheet ::
   { container :: Styles

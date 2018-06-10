@@ -2,12 +2,8 @@ module React.Navigation ( Route(..)
                         , RouteConfig(..)
                         , Navigation
                         , NavProp
-                        , NavRender
-                        , NavRender'
                         , ReactNavClass
                         , ReactNavClass'
-                        , ReactNavSpec
-                        , ReactNavSpec'
                         , mkRoutes
                         , navigate
                         , getNavParams
@@ -23,9 +19,10 @@ module React.Navigation ( Route(..)
 
 import Prelude
 
-import Control.Monad.Eff (Eff)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
-import React (ReactClass, ReactProps, ReactSpec, ReactThis, Render, getProps)
+import Effect (Effect)
+import Prim.Row (class Cons) as Row
+import React (ReactClass, ReactThis, getProps)
 import Type.Prelude (class RowToList)
 import Type.Row (Cons, Nil, kind RowList)
 import Unsafe.Coerce (unsafeCoerce)
@@ -41,28 +38,19 @@ type ReactNavClass' = forall rts params. ReactNavClass rts params
 
 newtype RouteConfig rts params = RouteConfig { screen :: ReactNavClass rts params }
 
-type ReactNavSpec rts params state render eff =
-  ReactSpec (NavProp rts params) state render eff
-
-type ReactNavSpec' rts state render eff =
-  ReactNavSpec rts {} state render eff
-
-type NavRender rts params state render eff = Render (NavProp rts params) state render eff
-type NavRender' rts state render eff = NavRender rts {} state render eff
-
-foreign import getNavParamsD :: forall rts params eff. Navigation rts params -> Eff eff params
-foreign import setNavParamsD :: forall rts params eff. Navigation rts params -> params -> Eff eff Unit
-foreign import unsafeNavigate :: forall rts p params eff. Navigation rts p -> String -> params -> Eff eff Unit
+foreign import getNavParamsD :: forall rts params. Navigation rts params -> Effect params
+foreign import setNavParamsD :: forall rts params. Navigation rts params -> params -> Effect Unit
+foreign import unsafeNavigate :: forall rts p params. Navigation rts p -> String -> params -> Effect Unit
 foreign import unsafeCreateStackNavigator :: forall r configs. configs -> ReactClass r
 foreign import unsafeCreateSwitchNavigator :: forall r configs. configs -> ReactClass r
 
-getNavParams :: forall rts params state eff. ReactThis (NavProp rts params) state -> Eff (props :: ReactProps | eff) params
+getNavParams :: forall rts params state. ReactThis (NavProp rts params) state -> Effect params
 getNavParams rt = withNavParam rt getNavParamsD
 
-setNavParams :: forall rts params state eff. ReactThis (NavProp rts params) state -> params -> Eff (props :: ReactProps | eff) Unit
+setNavParams :: forall rts params state. ReactThis (NavProp rts params) state -> params -> Effect Unit
 setNavParams rt p = withNavParam rt (\nav -> setNavParamsD nav p)
 
-withNavParam :: forall rts params state a eff. ReactThis (NavProp rts params) state -> (Navigation rts params -> Eff (props :: ReactProps | eff) a) -> Eff (props :: ReactProps | eff) a
+withNavParam :: forall rts params state a. ReactThis (NavProp rts params) state -> (Navigation rts params -> Effect a) -> Effect a
 withNavParam rt f = do
   props <- getProps rt
   f props.navigation
@@ -79,9 +67,9 @@ mkRoutes :: forall rts. RoutesBuilder rts => rts
 mkRoutes = unsafeCoerce {}
 
 class Navigable (name :: Symbol) param rs | name param -> rs
-instance navigable :: (IsSymbol name, RowCons name (Route name param) trash r) => Navigable name param (Record r)
+instance navigable :: (IsSymbol name, Row.Cons name (Route name param) trash r) => Navigable name param {|r}
 
-navigate :: forall rts p name params eff. IsSymbol name => Navigable name params rts => Navigation rts p -> Route name params -> params -> Eff eff Unit
+navigate :: forall rts p name params. IsSymbol name => Navigable name params rts => Navigation rts p -> Route name params -> params -> Effect Unit
 navigate nav r params = unsafeNavigate nav (routeName r) params
 
 routeName :: forall name params. (IsSymbol name) => Route name params -> String
