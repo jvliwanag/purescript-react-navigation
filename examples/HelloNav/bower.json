@@ -9,7 +9,7 @@
   "dependencies": {
     "purescript-console": "^4.1.0",
     "purescript-prelude": "^4.0.1",
-    "purescript-reactnative": "jvliwanag/purescript-reactnative#58991e2",
+    "purescript-reactnative": "^6.0.0",
     "purescript-react-navigation": "../.."
   },
   "devDependencies": {
